@@ -19,7 +19,7 @@ class PoolService {
       isPublic: poolData.isPublic !== undefined ? poolData.isPublic : true,
       passwordProtected: poolData.passwordProtected || false,
       passwordHash,
-      hostDeviceId: user.deviceId,
+      hostDeviceId: poolData.hostDeviceId || user.deviceId,
       localIp: poolData.localIp,
       port: poolData.port,
       protocolType: poolData.protocolType,
