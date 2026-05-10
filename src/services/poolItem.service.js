@@ -22,6 +22,12 @@ class PoolItemService {
       streamUrl: itemData.streamUrl,
       streamable: itemData.streamable || false,
     });
+
+    // Increment pool stats
+    pool.totalFiles += 1;
+    pool.totalSize += itemData.size;
+    await pool.save();
+
     return poolItem;
   }
 
@@ -31,6 +37,12 @@ class PoolItemService {
 
     const item = await PoolItem.findOne({ itemId, poolId: pool._id, ownerId: user._id });
     if (!item) throw new Error('Item not found or unauthorized');
+    
+    // Decrement pool stats
+    pool.totalFiles = Math.max(0, pool.totalFiles - 1);
+    pool.totalSize = Math.max(0, pool.totalSize - item.size);
+    await pool.save();
+
     await PoolItem.deleteOne({ _id: item._id });
     return true;
   }
