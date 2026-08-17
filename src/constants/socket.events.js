@@ -4,9 +4,16 @@ module.exports = {
     CREATED: 'pool:created',
     UPDATED: 'pool:updated',
     CLOSED: 'pool:closed',
+    ENDED: 'pool:ended',
+    EXPIRED: 'pool:expired',
     DELETED: 'pool:deleted',
     USER_JOINED: 'pool:user_joined',
     USER_LEFT: 'pool:user_left',
+    PARTICIPANT_REMOVED: 'pool:participant_removed',
+  },
+  FILE: {
+    ADDED: 'file:added',
+    REMOVED: 'file:removed',
   },
   SESSION: {
     JOIN: 'session:join',

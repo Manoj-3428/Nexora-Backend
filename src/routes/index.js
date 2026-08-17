@@ -6,12 +6,16 @@ const poolRoutes = require('./pool.routes');
 const userRoutes = require('./user.routes');
 const poolItemRoutes = require('./poolItem.routes');
 const historyRoutes = require('./history.routes');
+const activityRoutes = require('./activity.routes');
 
 router.use('/auth', authRoutes);
 router.use('/users', userRoutes);
 router.use('/pools', poolRoutes);
 router.use('/pools/:poolId/items', poolItemRoutes);
+// Spec alias: files live under items but expose /files for the mobile client too.
+router.use('/pools/:poolId/files', poolItemRoutes);
 router.use('/history', historyRoutes);
+router.use('/activity', activityRoutes);
 
 // Health check endpoint
 const mongoose = require('mongoose');

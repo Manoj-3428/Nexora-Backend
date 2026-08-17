@@ -5,6 +5,7 @@ const morgan = require('morgan');
 const routes = require('./routes');
 const { errorHandler, notFoundHandler } = require('./middleware/error.middleware');
 const { apiLimiter } = require('./middleware/rateLimiter.middleware');
+const sanitizeRequest = require('./middleware/sanitize.middleware');
 
 const app = express();
 
@@ -25,6 +26,9 @@ app.use('/api', apiLimiter);
 // Body Parser Middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+// Sanitize inputs: NoSQL-operator injection + basic HTML/XSS (Express 5 safe, in-place)
+app.use(sanitizeRequest);
 
 // HTTP Request Logging
 // Using morgan for requests, winston for general application logs

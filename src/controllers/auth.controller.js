@@ -7,7 +7,7 @@ const registerUser = async (req, res) => {
     const user = await authService.registerUser(req.body);
     return successResponse(res, 'User registered successfully', user, STATUS_CODES.CREATED);
   } catch (error) {
-    return errorResponse(res, error.message, error, STATUS_CODES.BAD_REQUEST);
+    return errorResponse(res, error.message, error, error.statusCode || STATUS_CODES.BAD_REQUEST);
   }
 };
 
@@ -17,7 +17,7 @@ const loginUser = async (req, res) => {
     const data = await authService.loginUser(email, password, deviceId);
     return successResponse(res, 'Login successful', data);
   } catch (error) {
-    return errorResponse(res, error.message, error, STATUS_CODES.UNAUTHORIZED);
+    return errorResponse(res, error.message, error, error.statusCode || STATUS_CODES.UNAUTHORIZED);
   }
 };
 
@@ -35,8 +35,12 @@ const getProfile = async (req, res) => {
     const user = req.user;
     return successResponse(res, 'Profile retrieved', {
       userId: user.userId,
+      username: user.username,
       name: user.name,
+      firstName: user.firstName,
+      lastName: user.lastName,
       email: user.email,
+      profilePic: user.profilePic,
       deviceId: user.deviceId,
     });
   } catch (error) {

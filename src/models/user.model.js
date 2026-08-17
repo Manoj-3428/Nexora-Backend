@@ -12,6 +12,28 @@ const userSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    firstName: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    lastName: {
+      type: String,
+      default: '',
+      trim: true,
+    },
+    // Unique Nexora handle used to authorize/search users when adding them to private pools.
+    // Stored lower-cased and normalized. `sparse` keeps legacy users (created before usernames) valid.
+    username: {
+      type: String,
+      unique: true,
+      sparse: true,
+      trim: true,
+      lowercase: true,
+      minlength: 3,
+      maxlength: 30,
+      index: true,
+    },
     email: {
       type: String,
       required: true,

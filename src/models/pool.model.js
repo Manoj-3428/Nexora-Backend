@@ -9,6 +9,15 @@ const poolSchema = new mongoose.Schema(
       unique: true,
       index: true,
     },
+    // Short, user-facing code for QR / manual join. Separate from the internal poolId
+    // so that the join identifier is not the same secret as internal references.
+    poolCode: {
+      type: String,
+      unique: true,
+      sparse: true,
+      uppercase: true,
+      index: true,
+    },
     poolName: {
       type: String,
       required: true,
@@ -63,9 +72,42 @@ const poolSchema = new mongoose.Schema(
       enum: Object.values(PoolStatus),
       default: PoolStatus.ACTIVE,
     },
+    // Maximum concurrent participants allowed in the pool.
+    maxParticipants: {
+      type: Number,
+      default: 10,
+      min: 1,
+    },
+    // Count of users who have currently joined (participation), maintained on join/leave.
+    currentParticipantCount: {
+      type: Number,
+      default: 0,
+    },
     activeUsersCount: {
       type: Number,
       default: 0,
+    },
+    // Whether the pool should surface in discovery queries.
+    discoveryEnabled: {
+      type: Boolean,
+      default: true,
+    },
+    // Discovery location as a GeoJSON Point [longitude, latitude].
+    // Used ONLY for proximity discovery; exact coordinates are never returned to non-owners.
+    location: {
+      type: {
+        type: String,
+        enum: ['Point'],
+        default: undefined,
+      },
+      coordinates: {
+        type: [Number], // [lng, lat]
+        default: undefined,
+      },
+    },
+    endedAt: {
+      type: Date,
+      default: null,
     },
     totalAccessCount: {
       type: Number,
@@ -97,5 +139,8 @@ const poolSchema = new mongoose.Schema(
 // Indexes for nearby pool discovery
 poolSchema.index({ poolStatus: 1, isPublic: 1, expiresAt: 1 });
 poolSchema.index({ poolStatus: 1, expiresAt: 1 }); // Index for cleanup worker scanning
+poolSchema.index({ createdBy: 1, createdAt: -1 }); // Owner history listing
+// Geospatial index for 5km / nearby discovery ($geoNear).
+poolSchema.index({ location: '2dsphere' });
 
 module.exports = mongoose.model('Pool', poolSchema);

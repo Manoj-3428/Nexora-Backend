@@ -5,6 +5,7 @@ const logger = require('../utils/logger.util');
 const { PoolStatus } = require('../enums/pool.enum');
 const { getIo } = require('../websocket/socket.manager');
 const EVENTS = require('../constants/socket.events');
+const activityService = require('../services/activity.service');
 
 const startCleanupWorker = () => {
   // Run every 30 seconds
@@ -54,12 +55,18 @@ const startCleanupWorker = () => {
         // Notify clients and clean up their sessions
         for (const pool of expiredPools) {
           logger.info(`Pool ${pool.poolId} has expired. Emitting closure events.`);
+          // New canonical event + legacy CLOSED event for existing clients.
+          io.to(`pool_${pool.poolId}`).emit(EVENTS.POOL.EXPIRED, {
+            poolId: pool.poolId,
+            reason: 'expired',
+          });
           io.to(`pool_${pool.poolId}`).emit(EVENTS.POOL.CLOSED, {
             poolId: pool.poolId,
             reason: 'expired',
           });
 
-          // Delete all sessions for the expired pool
+          // Record history for the owner, then delete live sessions.
+          activityService.log({ type: 'POOL_EXPIRED', userId: pool.createdBy, poolId: pool._id });
           await ActiveSession.deleteMany({ poolId: pool._id });
         }
       }
