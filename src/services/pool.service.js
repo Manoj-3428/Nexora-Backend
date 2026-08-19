@@ -260,6 +260,44 @@ class PoolService {
   }
 
   /**
+   * Text search over pool names. Returns active, discovery-enabled, non-expired
+   * pools whose name matches (case-insensitive), paginated. Uses the same
+   * discovery-safe projection as discovery — never exposes exact location,
+   * transport details, or the authorized-user list.
+   */
+  async searchPools(queryParams = {}) {
+    const term = String(queryParams.q || queryParams.name || '').trim();
+    if (term.length < 2) {
+      throw new AppError('Search term must be at least 2 characters', STATUS_CODES.BAD_REQUEST, ERROR_CODES.VALIDATION_ERROR);
+    }
+
+    // Escape regex metacharacters so user input is matched literally.
+    const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const { page, limit, skip } = parsePagination(queryParams);
+
+    const filter = {
+      poolName: { $regex: escaped, $options: 'i' },
+      poolStatus: PoolStatus.ACTIVE,
+      discoveryEnabled: true,
+      expiresAt: { $gt: new Date() },
+    };
+
+    const [pools, total] = await Promise.all([
+      Pool.find(filter)
+        .select('-passwordHash -location -localIp -port -allowedUsers')
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate('createdBy', 'userId username name profilePic')
+        .lean(),
+      Pool.countDocuments(filter),
+    ]);
+
+    const items = pools.map((p) => serializePool(p, 'other'));
+    return buildPaginatedResult(items, total, page, limit);
+  }
+
+  /**
    * Role-aware pool details.
    */
   async getPoolDetails(poolId, user) {

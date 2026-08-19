@@ -13,6 +13,7 @@ router.post('/', validate(createPoolSchema), poolController.createPool);
 router.get('/discover', poolController.discoverPools); // ~5km geospatial discovery
 router.get('/discover/nearby', poolController.fetchNearbyPools);
 router.get('/nearby', poolController.fetchNearbyPools); // backward compatible
+router.get('/search', poolController.searchPools); // text search over pool names
 router.get('/history', poolController.getPoolHistory);
 router.get('/code/:code', poolController.getPoolByCode);
 

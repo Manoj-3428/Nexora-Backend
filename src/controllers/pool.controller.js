@@ -32,6 +32,15 @@ const fetchNearbyPools = async (req, res) => {
   }
 };
 
+const searchPools = async (req, res) => {
+  try {
+    const result = await poolService.searchPools(req.query);
+    return successResponse(res, 'Pools retrieved', result);
+  } catch (error) {
+    return fail(res, error, STATUS_CODES.BAD_REQUEST);
+  }
+};
+
 const getPoolByCode = async (req, res) => {
   try {
     const pool = await poolService.findPoolByCode(req.params.code, req.user);
@@ -185,6 +194,7 @@ module.exports = {
   createPool,
   discoverPools,
   fetchNearbyPools,
+  searchPools,
   getPoolByCode,
   getPoolHistory,
   getPoolHistoryDetail,

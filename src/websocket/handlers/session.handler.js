@@ -37,11 +37,11 @@ const registerSessionHandlers = (io, socket) => {
   });
 
   socket.on(EVENTS.WEBRTC.ANSWER, (data) => {
-    socket.to(data.targetSocketId).emit(EVENTS.WEBRTC.ANSWER, { answer: data.answer, senderId: socket.user.userId });
+    socket.to(data.targetSocketId).emit(EVENTS.WEBRTC.ANSWER, { answer: data.answer, senderId: socket.user.userId, senderSocketId: socket.id });
   });
 
   socket.on(EVENTS.WEBRTC.ICE_CANDIDATE, (data) => {
-    socket.to(data.targetSocketId).emit(EVENTS.WEBRTC.ICE_CANDIDATE, { candidate: data.candidate, senderId: socket.user.userId });
+    socket.to(data.targetSocketId).emit(EVENTS.WEBRTC.ICE_CANDIDATE, { candidate: data.candidate, senderId: socket.user.userId, senderSocketId: socket.id });
   });
 };
 

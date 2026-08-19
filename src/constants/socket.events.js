@@ -10,6 +10,9 @@ module.exports = {
     USER_JOINED: 'pool:user_joined',
     USER_LEFT: 'pool:user_left',
     PARTICIPANT_REMOVED: 'pool:participant_removed',
+    // Roster of peers already in the room, sent to a newcomer so it can start
+    // WebRTC offers. Payload: { poolId, peers: [{ socketId, userId, name }] }.
+    PEERS: 'pool:peers',
   },
   FILE: {
     ADDED: 'file:added',
